@@ -7,7 +7,6 @@ namespace WebApi.Models
         public int id { get; init; }
         public string name { get; set; } = "";
         public string email { get; set; } = "";
-        [JsonIgnore]
         public string password { get; set; } = "";
         public string[] roles { get; set; } = [];
         [JsonIgnore]

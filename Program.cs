@@ -30,7 +30,7 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthentication();
 builder.Services.AddControllers();
 builder.Services.AddDbContext<ApplicationDbContext>(
-    options => options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"))
+    options => options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServerConnection"))
 );
 builder.Services.AddTransient<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
