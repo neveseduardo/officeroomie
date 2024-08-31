@@ -151,12 +151,19 @@ namespace WebApi.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("email")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("name")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("password")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("roles")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("updated_at")

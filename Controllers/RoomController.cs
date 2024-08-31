@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
-using WebApi.Models;
+using Microsoft.AspNetCore.Mvc;
 using WebApi.Repository;
+using WebApi.Models;
 
 namespace WebApi.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/v1/rooms")]
     public class RoomController : Controller

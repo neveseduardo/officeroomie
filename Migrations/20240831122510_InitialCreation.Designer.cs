@@ -10,7 +10,7 @@ using WebApi.Data;
 namespace WebApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240830183308_InitialCreation")]
+    [Migration("20240831122510_InitialCreation")]
     partial class InitialCreation
     {
         /// <inheritdoc />
@@ -154,12 +154,19 @@ namespace WebApi.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("email")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("name")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("password")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("roles")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("updated_at")

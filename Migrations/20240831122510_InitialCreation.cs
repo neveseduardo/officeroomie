@@ -88,9 +88,10 @@ namespace WebApi.Migrations
                 {
                     id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    name = table.Column<string>(type: "TEXT", nullable: true),
-                    email = table.Column<string>(type: "TEXT", nullable: true),
-                    password = table.Column<string>(type: "TEXT", nullable: true),
+                    name = table.Column<string>(type: "TEXT", nullable: false),
+                    email = table.Column<string>(type: "TEXT", nullable: false),
+                    password = table.Column<string>(type: "TEXT", nullable: false),
+                    roles = table.Column<string>(type: "TEXT", nullable: false),
                     created_at = table.Column<string>(type: "TEXT", nullable: false),
                     updated_at = table.Column<string>(type: "TEXT", nullable: false)
                 },
