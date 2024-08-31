@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace WebApi.Models
 {
     public class Room
@@ -8,7 +10,9 @@ namespace WebApi.Models
         public int capacity { get; set; }
         public int category_id { get; set; }
         public int user_id { get; set; }
-        public string created_at { get; set; } = $"{DateTime.Now:HH:mm:ss}";
-        public string updated_at { get; set; } = $"{DateTime.Now:HH:mm:ss}";
+        [JsonIgnore]
+        public string created_at { get; set; } = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss}";
+        [JsonIgnore]
+        public string updated_at { get; set; } = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss}";
     }
 }

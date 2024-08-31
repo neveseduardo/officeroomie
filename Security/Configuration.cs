@@ -1,4 +1,4 @@
-namespace WebApi.Repository;
+namespace WebApi.Security;
 
 public static class Configuration
 {

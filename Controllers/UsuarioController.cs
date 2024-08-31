@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using WebApi.Helpers;
 using WebApi.Repository;
 using WebApi.Models;
 
@@ -39,6 +40,7 @@ namespace WebApi.Controllers
         [HttpPost]
         public async Task<IActionResult> StoreUser([FromBody] User user)
         {
+            user.password = PasswordHelper.HashPassword(user.password);
             await _userRepository.AddUserAsync(user);
             return CreatedAtAction("GetUser", new { id = user.id }, user);
         }

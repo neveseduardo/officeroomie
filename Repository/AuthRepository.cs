@@ -1,10 +1,12 @@
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+using WebApi.Security;
+using WebApi.Helpers;
 using WebApi.Models;
 using WebApi.Data;
-using Microsoft.EntityFrameworkCore;
+using System.Text;
 
 namespace WebApi.Repository;
 
@@ -21,7 +23,7 @@ public class AuthRepository : IAuthRepository
     {
         var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.email == email);
 
-        if (user == null || !VerifyPassword(password, user.password))
+        if (user == null || !PasswordHelper.VerifyPassword(password, user.password))
         {
             return null;
         }
@@ -67,10 +69,5 @@ public class AuthRepository : IAuthRepository
         }
         
         return ci;
-    }
-
-    private bool VerifyPassword(string enteredPassword, string storedPassword)
-    {
-        return enteredPassword == storedPassword;
     }
 }
