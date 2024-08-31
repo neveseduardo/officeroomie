@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Repository;
 using WebApi.Models;
+using WebApi.ModelViewModels;
+using WebApi.DTO;
 
 namespace WebApi.Controllers
 {
@@ -19,28 +21,52 @@ namespace WebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<Client>> GetClients()
+        public async Task<IEnumerable<ClientViewModel>> GetClients()
         {
-            return await _clientRepository.GetClientsAsync();
+            var clients = await _clientRepository.GetClientsAsync();
+
+            var viewModel = clients.Select(u => new ClientViewModel {
+                id = u.id,
+                name = u.name,
+                email = u.email,
+            });
+
+            return viewModel;
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetClient([FromRoute] int id)
         {
-            var Client = await _clientRepository.GetClientByIdAsync(id);
+            var client = await _clientRepository.GetClientByIdAsync(id);
             
-            if (Client == null) {
+            if (client == null) {
                 return NotFound();
             }
+
+            var viewModel = new ClientViewModel {
+                id = client.id,
+                name = client.name,
+                email = client.email,
+            };
             
-            return Ok(Client);
+            return Ok(viewModel);
         }
 
         [HttpPost]
-        public async Task<IActionResult> StoreClient([FromBody] Client Client)
+        public async Task<IActionResult> StoreClient([FromBody] ClientDto dto)
         {
-            await _clientRepository.AddClientAsync(Client);
-            return CreatedAtAction("GetClient", new { id = Client.id }, Client);
+            if (!ModelState.IsValid) {
+                return BadRequest(ModelState);
+            }
+
+            var client = new Client {
+                name = dto.name,
+                email = dto.email,
+            };
+            
+            await _clientRepository.AddClientAsync(client);
+
+            return CreatedAtAction("GetClient", new { id = client.id }, client);
         }
 
         [HttpDelete("{id}")]
@@ -56,13 +82,18 @@ namespace WebApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateClient([FromRoute] int id, [FromBody] Client Client)
+        public async Task<IActionResult> UpdateClient([FromRoute] int id, [FromBody] ClientDto dto)
         {
-            if (id != Client.id) {
-                return BadRequest();
+            if (!ModelState.IsValid) {
+                return BadRequest(ModelState);
             }
 
-            var updatedClient = await _clientRepository.UpdateClientAsync(id, Client);
+            var client = new Client {
+                name = dto.name,
+                email = dto.email,
+            };
+
+            var updatedClient = await _clientRepository.UpdateClientAsync(id, client);
             
             if (updatedClient == null) {
                 return NotFound();

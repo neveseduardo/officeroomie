@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using WebApi.Helpers;
 using WebApi.Repository;
 using WebApi.Models;
+using WebApi.DTO;
+using WebApi.ViewModels;
 
 namespace WebApi.Controllers
 {
@@ -20,9 +22,17 @@ namespace WebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<User>> GetUsers()
+        public async Task<IEnumerable<UserViewModel>> GetUsers()
         {
-            return await _userRepository.GetUsersAsync();
+            var users = await _userRepository.GetUsersAsync();
+            var viewModel = users.Select(u => new UserViewModel {
+                id = u.id,
+                name = u.name,
+                email = u.email,
+                roles = u.roles,
+            });
+            
+            return viewModel;
         }
 
         [HttpGet("{id}")]
@@ -34,14 +44,37 @@ namespace WebApi.Controllers
                 return NotFound();
             }
             
-            return Ok(user);
+            var viewModel = new UserViewModel
+            {
+                id = user.id,
+                name = user.name,
+                email = user.email,
+                roles = user.roles,
+            };
+            
+            return Ok(viewModel);
         }
 
+
         [HttpPost]
-        public async Task<IActionResult> StoreUser([FromBody] User user)
+        public async Task<IActionResult> StoreUser([FromBody] UserDto dto)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            
+            var user = new User
+            {
+                id = dto.id,
+                name = dto.name,
+                email = dto.email,
+                password = dto.password,
+                roles = dto.roles,
+            };
+
             user.password = PasswordHelper.HashPassword(user.password);
+            
             await _userRepository.AddUserAsync(user);
+            
             return CreatedAtAction("GetUser", new { id = user.id }, user);
         }
 
@@ -58,11 +91,19 @@ namespace WebApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser([FromRoute] int id, [FromBody] User user)
+        public async Task<IActionResult> UpdateUser([FromRoute] int id, [FromBody] UserDto dto)
         {
-            if (id != user.id) {
-                return BadRequest();
-            }
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            
+            var user = new User
+            {
+                id = dto.id,
+                name = dto.name,
+                email = dto.email,
+                password = dto.password,
+                roles = dto.roles,
+            };
 
             var updatedUser = await _userRepository.UpdateUserAsync(id, user);
             

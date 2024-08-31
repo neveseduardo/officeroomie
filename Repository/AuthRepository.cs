@@ -6,6 +6,7 @@ using WebApi.Security;
 using WebApi.Helpers;
 using WebApi.Models;
 using WebApi.Data;
+using WebApi.DTO;
 using System.Text;
 
 namespace WebApi.Repository;

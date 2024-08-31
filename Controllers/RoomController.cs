@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Repository;
 using WebApi.Models;
+using WebApi.ViewModels;
+using WebApi.DTO;
 
 namespace WebApi.Controllers
 {
@@ -19,28 +21,54 @@ namespace WebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<Room>> GetRooms()
+        public async Task<IEnumerable<RoomViewModel>> GetRooms()
         {
-            return await _roomRepository.GetRoomsAsync();
+            var rooms = await _roomRepository.GetRoomsAsync();
+            var viewModel = rooms.Select(u => new RoomViewModel {
+                name = u.name,
+                description = u.description,
+                capacity = u.capacity,
+            });
+            
+            return viewModel;
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetRoom([FromRoute] int id)
         {
-            var Room = await _roomRepository.GetRoomByIdAsync(id);
+            var room = await _roomRepository.GetRoomByIdAsync(id);
             
-            if (Room == null) {
+            if (room == null) {
                 return NotFound();
             }
+
+            var viewModel = new RoomViewModel
+            {
+                name = room.name,
+                description = room.description,
+                capacity = room.capacity,
+            };
             
-            return Ok(Room);
+            return Ok(viewModel);
         }
 
         [HttpPost]
-        public async Task<IActionResult> StoreRoom([FromBody] Room Room)
+        public async Task<IActionResult> StoreRoom([FromBody] RoomDto dto)
         {
-            await _roomRepository.AddRoomAsync(Room);
-            return CreatedAtAction("GetRoom", new { id = Room.id }, Room);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var room = new Room 
+            {
+                name = dto.name,
+                description = dto.description,
+                capacity = dto.capacity,
+                category_id = dto.category_id,
+            };
+
+            await _roomRepository.AddRoomAsync(room);
+
+            return CreatedAtAction("GetRoom", new { id = room.id }, room);
         }
 
         [HttpDelete("{id}")]
@@ -56,13 +84,17 @@ namespace WebApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateRoom([FromRoute] int id, [FromBody] Room Room)
+        public async Task<IActionResult> UpdateRoom([FromRoute] int id, [FromBody] RoomDto dto)
         {
-            if (id != Room.id) {
-                return BadRequest();
-            }
-
-            var updatedRoom = await _roomRepository.UpdateRoomAsync(id, Room);
+            var room = new Room 
+            {
+                name = dto.name,
+                description = dto.description,
+                capacity = dto.capacity,
+                category_id = dto.category_id,
+            };
+            
+            var updatedRoom = await _roomRepository.UpdateRoomAsync(id, room);
             
             if (updatedRoom == null) {
                 return NotFound();

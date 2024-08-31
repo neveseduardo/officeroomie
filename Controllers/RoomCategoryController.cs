@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Repository;
 using WebApi.Models;
+using WebApi.ModelsViewModels;
+using WebApi.DTO;
 
 namespace WebApi.Controllers
 {
@@ -19,28 +21,48 @@ namespace WebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<RoomCategory>> GetRoomCategorys()
+        public async Task<IEnumerable<RoomCategoryViewModel>> GetRoomCategorys()
         {
-            return await _roomCategoryRepository.GetRoomCategorysAsync();
+            var roomcategories = await _roomCategoryRepository.GetRoomCategorysAsync();
+
+            var viewModel = roomcategories.Select(u => new RoomCategoryViewModel {
+                id = u.id,
+                description = u.description,
+            });
+
+            return viewModel;
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetRoomCategory([FromRoute] int id)
         {
-            var RoomCategory = await _roomCategoryRepository.GetRoomCategoryByIdAsync(id);
+            var roomCategory = await _roomCategoryRepository.GetRoomCategoryByIdAsync(id);
             
-            if (RoomCategory == null) {
+            if (roomCategory == null) {
                 return NotFound();
             }
+
+            var viewModel = new RoomCategoryViewModel {
+                id = roomCategory.id,
+                description = roomCategory.description,
+            };
             
-            return Ok(RoomCategory);
+            return Ok(viewModel);
         }
 
         [HttpPost]
-        public async Task<IActionResult> StoreRoomCategory([FromBody] RoomCategory RoomCategory)
+        public async Task<IActionResult> StoreRoomCategory([FromBody] RoomCategoryDto dto)
         {
-            await _roomCategoryRepository.AddRoomCategoryAsync(RoomCategory);
-            return CreatedAtAction("GetRoomCategory", new { id = RoomCategory.id }, RoomCategory);
+            if (!ModelState.IsValid) 
+                return BadRequest(ModelState);
+
+            var roomCategory = new RoomCategory {
+                description = dto.description,
+            };
+
+            await _roomCategoryRepository.AddRoomCategoryAsync(roomCategory);
+
+            return CreatedAtAction("GetRoomCategory", new { id = roomCategory.id }, roomCategory);
         }
 
         [HttpDelete("{id}")]
@@ -56,13 +78,16 @@ namespace WebApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateRoomCategory([FromRoute] int id, [FromBody] RoomCategory RoomCategory)
+        public async Task<IActionResult> UpdateRoomCategory([FromRoute] int id, [FromBody] RoomCategoryDto dto)
         {
-            if (id != RoomCategory.id) {
-                return BadRequest();
-            }
+            if (!ModelState.IsValid) 
+                return BadRequest(ModelState);
 
-            var updatedRoomCategory = await _roomCategoryRepository.UpdateRoomCategoryAsync(id, RoomCategory);
+            var roomCategory = new RoomCategory {
+                description = dto.description,
+            };
+
+            var updatedRoomCategory = await _roomCategoryRepository.UpdateRoomCategoryAsync(id, roomCategory);
             
             if (updatedRoomCategory == null) {
                 return NotFound();

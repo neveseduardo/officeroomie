@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Repository;
-using WebApi.ViewModels;
+using WebApi.DTO;
 
 namespace WebApi.Controllers
 {
@@ -15,19 +15,20 @@ namespace WebApi.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> AuthenticateUser([FromBody] LoginViewModel loginRequest)
+        public async Task<IActionResult> AuthenticateUser([FromBody] LoginDto dto)
         {
-            try
-            {
-                if (loginRequest == null || string.IsNullOrEmpty(loginRequest.email) || string.IsNullOrEmpty(loginRequest.password))
-                {
+            try {
+                if (!ModelState.IsValid) {
+                    return BadRequest(ModelState);
+                }
+
+                if (dto == null || string.IsNullOrEmpty(dto.email) || string.IsNullOrEmpty(dto.password)) {
                     return BadRequest("Invalid client request");
                 }
 
-                var user = await _authRepository.ValidateUserAsync(loginRequest.email, loginRequest.password);
+                var user = await _authRepository.ValidateUserAsync(dto.email, dto.password);
                 
-                if (user == null)
-                {
+                if (user == null) {
                     return Unauthorized();
                 }
 
